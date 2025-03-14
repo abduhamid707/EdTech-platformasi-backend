@@ -10,5 +10,8 @@ router.get('/', studentController.getStudents);
 router.put('/:id',authMiddleware, studentController.updateStudent);
 router.delete('/:id',authMiddleware, studentController.deleteStudent);
 router.post('/:studentId/enroll/:courseId', studentController.enrollInCourse);
-
+// O‘quvchining kursdagi o‘zlashtirish foizini olish
+router.get('/:id/progress', studentController.getStudentProgress);
+router.patch('/:id/update-progress',authMiddleware, studentController.updateStudentProgress);
 export default router;
+ 

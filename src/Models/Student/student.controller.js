@@ -22,7 +22,52 @@ class StudentController {
       res.status(500).json({ error: error.message })
     }
   }
-
+  static async getStudentProgress (req, res) {
+    try {
+      const { id } = req.params;
+      const { courseId } = req.query; 
+      const student = await Student.findById(id);
+      if (!student) return res.status(404).json({ message: 'O‘quvchi topilmadi' });
+      const progress = student.calculateProgress(courseId);
+      res.json({ student: student.name, courseId, progress: `${progress}%` });
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  }
+  static async updateStudentProgress(req, res) {
+    try {
+      const { id } = req.params;
+      const { courseId } = req.query;
+      const { completedLessons, totalLessons } = req.body;
+  
+      const student = await Student.findById(id);
+      if (!student) return res.status(404).json({ message: 'O‘quvchi topilmadi' });
+  
+      const progressIndex = student.progress.findIndex((p) => p.course.toString() === courseId.toString());
+  
+      if (progressIndex !== -1) {
+        student.progress[progressIndex].completedLessons = completedLessons;
+        student.progress[progressIndex].totalLessons = totalLessons;
+      } else {
+        student.progress.push({ course: courseId, completedLessons, totalLessons });
+      }
+  
+      await student.save();
+      
+      const progress = student.calculateProgress(courseId);
+      
+      return res.json({ 
+        message: 'O‘quvchi progressi yangilandi', 
+        student: student.name, 
+        courseId, 
+        progress: `${progress}%`
+      });
+  
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+  
   // 📌 3. Talabani yangilash
   static async updateStudent(req, res) {
     try {

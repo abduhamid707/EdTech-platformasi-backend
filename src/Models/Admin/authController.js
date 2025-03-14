@@ -20,7 +20,8 @@ class AuthController {
             const newUser = new User({ email, password: hashedPassword });
             await newUser.save();
 
-            res.status(201).json({ message: 'User registered successfully' });
+            const token = JWT.SIGN({ id: newUser._id });
+            res.json({ token, newUser: { id: newUser._id, email: newUser.email } });
         } catch (error) {
             res.status(500).json({ error: 'Server error' });
         }
